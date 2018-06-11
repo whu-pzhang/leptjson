@@ -13,7 +13,8 @@ static int test_pass = 0;
         if (equality)                                                          \
             test_pass++;                                                       \
         else {                                                                 \
-            fprintf(stderr, "%s:%d: expect: " format " actual: " format "\n",  \
+            fprintf(stderr,                                                    \
+                    "%s: Line %d: expect: " format " actual: " format "\n",    \
                     __FILE__, __LINE__, expect, actual);                       \
             main_ret = 1;                                                      \
         }                                                                      \
@@ -47,11 +48,47 @@ static void test_parse_true(void)
     EXPECT_EQ_INT(LEPT_TRUE, lept_get_type(&v));
 }
 
+static void test_parse_expect_value(void)
+{
+    lept_value v;
+
+    v.type = LEPT_FALSE;
+    EXPECT_EQ_INT(LEPT_PARSE_EXPECT_VALUE, lept_parse(&v, ""));
+    EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+
+    v.type = LEPT_FALSE;
+    EXPECT_EQ_INT(LEPT_PARSE_EXPECT_VALUE, lept_parse(&v, " "));
+    EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+}
+
+static void test_parse_invalid_value(void)
+{
+    lept_value v;
+    v.type = LEPT_FALSE;
+    EXPECT_EQ_INT(LEPT_PARSE_INVALID_VALUE, lept_parse(&v, "nul"));
+    EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+
+    v.type = LEPT_FALSE;
+    EXPECT_EQ_INT(LEPT_PARSE_INVALID_VALUE, lept_parse(&v, "hello"));
+    EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+}
+
+static void test_parse_root_not_singular(void)
+{
+    lept_value v;
+    v.type = LEPT_FALSE;
+    EXPECT_EQ_INT(LEPT_PARSE_ROOT_NOT_SINGULAR, lept_parse(&v, "null x"));
+    EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+}
+
 static void test_parse(void)
 {
     test_parse_null();
     test_parse_false();
     test_parse_true();
+    test_parse_expect_value();
+    test_parse_invalid_value();
+    test_parse_root_not_singular();
 }
 
 int main(void)
