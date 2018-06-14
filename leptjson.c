@@ -3,10 +3,10 @@
 #include <stdlib.h> /* NULL, stdtod() */
 #include <assert.h>
 
-#define EXPECT(c, ch)                                                          \
-    do {                                                                       \
-        assert(*c->json == (ch));                                              \
-        c->json++;                                                             \
+#define EXPECT(c, ch)                                                                              \
+    do {                                                                                           \
+        assert(*c->json == (ch));                                                                  \
+        c->json++;                                                                                 \
     } while (0)
 #define ISDIGIT(ch) ((ch) >= '0' && (ch) <= '9')
 #define ISDIGIT1TO9(ch) ((ch >= '1' && (ch) <= '9'))
@@ -31,8 +31,7 @@ static void lept_parse_whitespace(lept_context *c)
 }
 
 /* refactoring lept_parse_true/false/null */
-static int lept_parse_literal(lept_context *c, lept_value *v,
-                              const char *literal, lept_type type)
+static int lept_parse_literal(lept_context *c, lept_value *v, const char *literal, lept_type type)
 {
     size_t i;
     EXPECT(c, literal[0]);
