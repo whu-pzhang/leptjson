@@ -14,6 +14,8 @@ enum {
     LEPT_PARSE_ROOT_NOT_SINGULAR,
     LEPT_PARSE_NUMBER_TOO_BIG,
     LEPT_PARSE_MISS_QUOTATION_MARK,
+    LEPT_PARSE_INVALID_STRING_ESCAPE,
+    LEPT_PARSE_INVALID_STRING_CHAR
 };
 
 /* json data structure */
@@ -28,9 +30,9 @@ typedef struct {
     lept_type type;
 } lept_value;
 
-#define lept_init(v)                                                                                                   \
-    do {                                                                                                               \
-        (v)->type = LEPT_NULL;                                                                                         \
+#define lept_init(v)           \
+    do {                       \
+        (v)->type = LEPT_NULL; \
     } while (0)
 
 /* parse json */
@@ -38,6 +40,8 @@ int lept_parse(lept_value *v, const char *json);
 
 /* obtain json data type */
 lept_type lept_get_type(const lept_value *v);
+
+void lept_set_null(lept_value *v);
 
 /* boolean */
 int lept_get_boolean(const lept_value *v);
