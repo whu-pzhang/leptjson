@@ -1,3 +1,7 @@
+#ifdef _WINDOWS
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif // _WINDOWS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -167,6 +171,47 @@ static void test_parse_invalid_string_char(void)
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_CHAR, "\"\x1F\"");
 }
 
+static void test_parse_invalid_unicode_hex(void)
+{
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u0\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u01\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u012\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u/000\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\uG000\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u0/00\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u0G00\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u0/00\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u00G0\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u000/\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u000G\"");
+}
+
+static void test_parse_invalid_unicode_surrogate() {
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uDBFF\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\\\\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\uDBFF\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\uE000\"");
+}
+
+static void test_parse(void)
+{
+	test_parse_null();
+	test_parse_false();
+	test_parse_true();
+	test_parse_number();
+	test_parse_expect_value();
+	test_parse_invalid_value();
+	test_parse_root_not_singular();
+	test_parse_number_too_big();
+	test_parse_missing_quotation_mark();
+	test_parse_invalid_string_escape();
+	test_parse_invalid_string_char();
+	test_parse_invalid_unicode_hex();
+	test_parse_invalid_unicode_surrogate();
+}
+
 static void test_access_null(void)
 {
     lept_value v;
@@ -174,6 +219,7 @@ static void test_access_null(void)
     lept_set_string(&v, "a", 1);
     lept_set_null(&v);
     EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+	lept_free(&v);
 }
 
 static void test_access_boolean(void)
@@ -194,7 +240,7 @@ static void test_access_number(void)
     lept_init(&v);
     lept_set_string(&v, "a", 1);
     lept_set_number(&v, 1234.5);
-    EXPECT_EQ_DOUBLE(lept_get_number(&v), 1234.5);
+    EXPECT_EQ_DOUBLE( 1234.5, lept_get_number(&v));
     lept_free(&v);
 }
 
@@ -209,29 +255,24 @@ static void test_access_string(void)
     lept_free(&v);
 }
 
-static void test_parse(void)
-{
-    test_parse_null();
-    test_parse_false();
-    test_parse_true();
-    test_parse_number();
-    test_parse_expect_value();
-    test_parse_invalid_value();
-    test_parse_root_not_singular();
-    test_parse_number_too_big();
-    test_parse_missing_quotation_mark();
-    test_parse_invalid_string_escape();
-    test_parse_invalid_string_char();
 
-    test_access_null();
-    test_access_string();
-    test_access_boolean();
-    test_access_number();
+static void test_access(void)
+{
+	test_access_null();
+	test_access_string();
+	test_access_boolean();
+	test_access_number();
 }
 
 int main(void)
 {
+#ifdef _WINDOWS
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetBreakAlloc(85);
+#endif // _WINDOWS
+
     test_parse();
+	test_access();
     printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
     return main_ret;
 }
