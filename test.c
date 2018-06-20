@@ -185,6 +185,7 @@ static void test_parse_invalid_unicode_hex(void)
 	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u00G0\"");
 	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u000/\"");
 	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u000G\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u 123\"");
 }
 
 static void test_parse_invalid_unicode_surrogate() {
@@ -268,8 +269,8 @@ int main(void)
 {
 #ifdef _WINDOWS
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	_CrtSetBreakAlloc(85);
-#endif // _WINDOWS
+	/*_CrtSetBreakAlloc(85);*/
+#endif /* _WINDOWS */
 
     test_parse();
 	test_access();
